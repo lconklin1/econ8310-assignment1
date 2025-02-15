@@ -25,6 +25,7 @@ def main():
     data_test['trips'] = 0
 
     gam = model(data)
+    model = gam
     data_test = modelFit(gam, data_test)
     pred = data_test['trips'].values 
     return True
