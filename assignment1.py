@@ -2,10 +2,6 @@ from pygam import LinearGAM, s#, f, l
 import pandas as pd
 import patsy as pt
 import numpy as np
-#from plotly import subplots
-#import plotly.offline as py
-#import plotly.graph_objs as go
-#import plotly.express as px
 
 data = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_train.csv")
 data_test = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_test.csv")
