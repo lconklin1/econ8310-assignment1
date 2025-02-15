@@ -24,5 +24,5 @@ data_test['hour_modified'] = data_test['hour']+1
 data_test['trips'] = 0
 
 model = create_gam(data)
-modelFit = create_modelFit(gam, data_test)
+modelFit = create_modelFit(model, data_test)
 pred = data_test['trips'].values 
