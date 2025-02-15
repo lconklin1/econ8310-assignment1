@@ -1,29 +1,33 @@
-from pygam import LinearGAM, s#, f, l
+from pygam import LinearGAM, s
 import pandas as pd
 import patsy as pt
 import numpy as np
 
-data = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_train.csv")
-data_test = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_test.csv")
+def model(data):
+    eqn = """trips ~ -1 + month + day_of_week_num + hour"""
+    y,x = pt.dmatrices(eqn, data=data)
+    gam = LinearGAM(s(0) + s(1) + s(2) )
+    gam = gam.gridsearch(np.asarray(x), y)
+    return gam
 
-data_combined = pd.concat([data,data_test],ignore_index=False)
-data_combined.set_index(pd.DatetimeIndex(data_combined['Timestamp']), inplace=True)
-data_combined.fillna(0,inplace=True)
+def modelFit(gam,data_test):
+    data_test['trips'] = data_test.apply(lambda row: gam.predict([[row.month, row.day_of_week_num, row.hour_modified]])[0], axis=1)
+    return data_test
 
-data_combined['day_of_week'] = pd.to_datetime(data_combined['Timestamp']).dt.day_name()
-data_combined['day_of_week_num'] = pd.to_datetime(data_combined['Timestamp']).dt.weekday+1
-data_combined['hour_modified'] = data_combined['hour']+1
+def main():
+    data = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_train.csv")
+    data['day_of_week_num'] = pd.to_datetime(data['Timestamp']).dt.weekday+1
+    data['hour_modified'] = data['hour']+1
 
-data['day_of_week'] = pd.to_datetime(data['Timestamp']).dt.day_name()
-data['day_of_week_num'] = pd.to_datetime(data['Timestamp']).dt.weekday+1
-data['hour_modified'] = data['hour']+1
+    data_test = pd.read_csv("https://github.com/dustywhite7/econ8310-assignment1/raw/main/assignment_data_test.csv")
+    data_test['day_of_week_num'] = pd.to_datetime(data_test['Timestamp']).dt.weekday+1
+    data_test['hour_modified'] = data_test['hour']+1
+    data_test['trips'] = 0
 
-# Generate x and y matrices
-eqn = """trips ~ -1 + month + day_of_week_num + hour"""
-y,x = pt.dmatrices(eqn, data=data)
+    gam = model(data)
+    data_test = modelFit(gam, data_test)
+    pred = data_test['trips'].values 
+    return data_test, pred
+main()
 
-# Initialize and fit the model
-gam = LinearGAM(s(0) + s(1) + s(2) )
-gam = gam.gridsearch(np.asarray(x), y)
 
-data_combined['trips_forecasted'] = data_combined.apply(lambda row: gam.predict([[row.month, row.day_of_week_num, row.hour_modified]])[0], axis=1)
