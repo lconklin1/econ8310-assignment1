@@ -3,7 +3,7 @@ import pandas as pd
 import patsy as pt
 import numpy as np
 
-def model(data):
+def create_gam(data):
     eqn = """trips ~ -1 + month + day_of_week_num + hour"""
     y,x = pt.dmatrices(eqn, data=data)
     gam = LinearGAM(s(0) + s(1) + s(2) )
@@ -24,7 +24,7 @@ def main():
     data_test['hour_modified'] = data_test['hour']+1
     data_test['trips'] = 0
 
-    gam = model(data)
+    gam = create_gam(data)
     model = gam
     data_test = modelFit(gam, data_test)
     pred = data_test['trips'].values 
